@@ -3,14 +3,14 @@
 
 package com.azure.ai.textanalytics;
 
+import com.azure.ai.textanalytics.models.TextAnalyticsApiKeyCredential;
 import com.azure.ai.textanalytics.models.TextSentiment;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Sample demonstrates how to asynchronously analyze the sentiment of an input text.
- * */
+ */
 public class AnalyzeSentimentAsync {
     /**
      * Main method to invoke this demo about how to analyze the sentiment of an input text.
@@ -20,8 +20,8 @@ public class AnalyzeSentimentAsync {
     public static void main(String[] args) {
         // Instantiate a client that will be used to call the service.
         TextAnalyticsAsyncClient client = new TextAnalyticsClientBuilder()
-            .subscriptionKey("{subscription_key}")
-            .endpoint("https://{servicename}.cognitiveservices.azure.com/")
+            .subscriptionKey(new TextAnalyticsApiKeyCredential("{subscription_key}"))
+            .endpoint("{endpoint}")
             .buildAsyncClient();
 
         // The text that need be analysed.

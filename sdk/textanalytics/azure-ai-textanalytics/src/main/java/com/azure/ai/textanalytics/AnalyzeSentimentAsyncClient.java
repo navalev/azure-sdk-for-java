@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ class AnalyzeSentimentAsyncClient {
 
         return analyzeBatchSentimentWithResponse(
             Collections.singletonList(new TextDocumentInput("0", text, language)), null, context)
-            .map(response -> new SimpleResponse<>(response, response.getValue().iterator().next()));
+            .map(Transforms::processSingleResponseErrorResult);
     }
 
     Mono<Response<DocumentResultCollection<AnalyzeSentimentResult>>> analyzeSentimentWithResponse(
@@ -122,7 +123,7 @@ class AnalyzeSentimentAsyncClient {
             // Not throw exception for an invalid Sentiment type because we should not skip processing the
             // other response. It is a service issue.
             logger.logExceptionAsWarning(
-                new RuntimeException(String.format("'%s' is not valid text sentiment.",
+                new RuntimeException(String.format(Locale.ROOT, "'%s' is not valid text sentiment.",
                     documentSentiment.getSentiment())));
         }
         final SentimentConfidenceScorePerLabel confidenceScorePerLabel = documentSentiment.getDocumentScores();
@@ -136,7 +137,7 @@ class AnalyzeSentimentAsyncClient {
                     // Not throw exception for an invalid Sentiment type because we should not skip processing the
                     // other response. It is a service issue.
                     logger.logExceptionAsWarning(
-                        new RuntimeException(String.format("'%s' is not valid text sentiment.",
+                        new RuntimeException(String.format(Locale.ROOT, "'%s' is not valid text sentiment.",
                             sentenceSentiment.getSentiment())));
                 }
                 SentimentConfidenceScorePerLabel confidenceScorePerSentence = sentenceSentiment.getSentenceScores();
@@ -155,5 +156,4 @@ class AnalyzeSentimentAsyncClient {
                 sentenceSentimentTexts.stream().mapToInt(TextSentiment::getLength).sum(), 0),
             sentenceSentimentTexts);
     }
-
 }

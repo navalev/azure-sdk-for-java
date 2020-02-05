@@ -16,7 +16,6 @@ import com.azure.core.util.Configuration
 import com.azure.core.util.logging.ClientLogger
 import com.azure.storage.common.StorageSharedKeyCredential
 import com.azure.storage.file.share.models.ListSharesOptions
-import org.junit.jupiter.api.Test
 import spock.lang.Specification
 
 import java.time.Duration
@@ -64,6 +63,9 @@ class APISpec extends Specification {
             connectionString = "DefaultEndpointsProtocol=https;AccountName=teststorage;" +
                 "AccountKey=atestaccountkey;EndpointSuffix=core.windows.net"
         }
+
+        // Print out the test name to create breadcrumbs in our test logging in case anything hangs.
+        System.out.printf("========================= %s.%s =========================%n", className, testName)
     }
 
     /**
@@ -128,7 +130,7 @@ class APISpec extends Specification {
     }
 
     static boolean liveMode() {
-        return testMode == TestMode.LIVE
+        return testMode != TestMode.PLAYBACK
     }
 
     def fileServiceBuilderHelper(final InterceptorManager interceptorManager) {
@@ -159,7 +161,7 @@ class APISpec extends Specification {
             builder.addPolicy(policy)
         }
 
-        if (!liveMode()) {
+        if (testMode == TestMode.RECORD) {
             builder.addPolicy(interceptorManager.getRecordPolicy())
         }
 
@@ -292,5 +294,13 @@ class APISpec extends Specification {
 
     InputStream getInputStream(byte[] data) {
         return new ByteArrayInputStream(data)
+    }
+
+    void sleepIfLive(long milliseconds) {
+        if (testMode == TestMode.PLAYBACK) {
+            return
+        }
+
+        sleep(milliseconds)
     }
 }

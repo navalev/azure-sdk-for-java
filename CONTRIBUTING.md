@@ -67,7 +67,8 @@ mvn -f pom.client.xml -Dgpg.skip -DskipTests clean install
 - `clean:` will remove any previous generated output.
 - `install:`  compiles project and installs it in the local Maven cache.
 
->**Note**: Refer to [wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Building) for learning about how to build using Java 11
+>**Note**: Refer to [wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Building) for learning about how to build using Java 11 
+>and [this wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Unit-Testing) for guidelines on unit testing
 
 ### Compiling one project only
 
@@ -103,7 +104,7 @@ Unreleased Dependency version – Whenever possible, libraries should be using t
 
 An example of Current vs Dependency versions: `com.azure:azure-storage-blob-batch` has dependencies on `com.azure:azure-core`, `com.azure:azure-core-http-netty` and `com.azure:azure-storage-blob`. Because `com.azure:azure-core` and `com.azure:azure-core-http-netty` are both built outside of azure-storage pipeline we should be using the released or *Dependency* versions of these when they're dependencies of another library. Similarly, libraries built as part of the same pipeline, that have interdependencies, should be using the Current version. Since `com.azure:azure-storage-blob-batch` and `com.azure:azure-storage-blob` are both built part of the azure-batch pipeline when `com.azure:azure-storage-blob` is declared as a dependency of `com.azure:azure-storage-blob-batch` it should be the *Current* version.
 
-An example of an Unreleased Dependency version: Additive, not breaking, API changes have been made to `com.azure:azure-core`. `com.azure:azure-storage-blob` has a dependency on `com.azure:azure-core` and requires the additive API change that has not yet been released. An unreleased entry needs to be created in [version_client.txt](./eng/versioning/version_client.txt), under the unreleased section, with the following format: `unreleased_<groupId>:<artifactId>;dependency-version`, in this example that would be `unreleased_com.azure:azure-core;1.2.0-beta.1` (this should match the 'current' version of core). The dependency update tags in the pom files that required this dependency would now reference `{x-version-update;unreleased_com.azure:azure-core;dependency}`. Once the updated library has been released the unreleased dependency version should be removed and the POM file update tags should be referencing the released version.
+An example of an Unreleased Dependency version: Additive, not breaking, API changes have been made to `com.azure:azure-core`. `com.azure:azure-storage-blob` has a dependency on `com.azure:azure-core` and requires the additive API change that has not yet been released. An unreleased entry needs to be created in [version_client.txt](./eng/versioning/version_client.txt), under the unreleased section, with the following format: `unreleased_<groupId>:<artifactId>;dependency-version`, in this example that would be `unreleased_com.azure:azure-core;1.2.0` (this should match the 'current' version of core). The dependency update tags in the pom files that required this dependency would now reference `{x-version-update;unreleased_com.azure:azure-core;dependency}`. Once the updated library has been released the unreleased dependency version should be removed and the POM file update tags should be referencing the released version.
 
 ### Tooling, version files and marker tags
 
@@ -140,9 +141,7 @@ In README files this ends up being slightly different. Because the version tag i
 Let's say we've GA'd and I need to tick up the version of azure-storage libraries how would I do it? Guidelines for incrementing versions after release can be found [here](https://github.com/Azure/azure-sdk/blob/master/docs/policies/releases.md#incrementing-after-release).
 
 1. I'd open up eng\versioning\version_client.txt and update the current-versions of the libraries that are built and released as part of the azure storage pipeline. This list can be found in pom.service.xml under the sdk/storage directory. It's worth noting that any module entry starting with "../" are external module dependencies and not something that's released as part of the pipeline. Dependencies for library components outside of a given area would be downloading the appropriate dependency from Maven like we do for external dependencies.
-2. Execute the update_versions python script from the root of the enlistment
-`python eng/versioning/update_versions.py --ut libary --bt client`
-This will go through the entire source tree and update all of the references in the POM and README files with the updated versions. Git status will show all of the modified files.
+2. Execute the update_versions python script from the root of the enlistment. The exact syntax and commands will vary based upon what is being changed and some examples can be found in the use cases in the [update_versions.py](./eng/versioning/update_versions.py#L6) file.
 3. Review and submit a PR with the modified files.
 
 ### Next steps: Management plane
